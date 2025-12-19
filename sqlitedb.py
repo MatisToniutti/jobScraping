@@ -10,6 +10,9 @@ def get_connection(db_name="jobs_scraping.db"):
 def create_offers_table(conn):
     """Crée spécifiquement la table des annonces si elle n'existe pas."""
     cursor = conn.cursor()
+
+    cursor.execute('DROP TABLE IF EXISTS offers')
+
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS offers (
             id TEXT PRIMARY KEY,
@@ -18,19 +21,20 @@ def create_offers_table(conn):
             company TEXT,
             city TEXT,
             country TEXT,
+            link TEXT,
             date_added TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
     conn.commit()
 
-def insert_offer(conn, job_id, website, name):
+def insert_offer(conn, job_id, website="", name="", company="",city="",country="",link=""):
     """Insère une annonce en ignorant les doublons."""
     try:
         cursor = conn.cursor()
         cursor.execute('''
-            INSERT OR IGNORE INTO offers (id, website, name)
-            VALUES (?, ?, ?)
-        ''', (job_id, website, name))
+            INSERT OR IGNORE INTO offers (id, website, name, company, city, country, link)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        ''', (job_id, website, name, company, city, country, link))
         conn.commit()
     except sqlite3.Error as e:
         print(f"Erreur SQLite : {e}")
