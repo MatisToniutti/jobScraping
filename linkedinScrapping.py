@@ -19,42 +19,46 @@ def run_scraper():
         offers_link = "https://www.linkedin.com/jobs/search/?currentJobId=4343539070&f_TPR=r604800&geoId=105015875&keywords=ia&origin=JOB_SEARCH_PAGE_SEARCH_BUTTON&refresh=true"
         page.goto(offers_link)
 
-        #on attend qu'au moins une offre ait chargée
-        page.wait_for_selector('[data-job-id]')
-        
-        # on récupère un "locator" qui pointe vers toutes les div ayant l'attribut data-job-id (les offres)
-        offres_locator = page.locator('div[data-job-id]')
+        next_page = True
 
-        # on récupère la barre de scroll permettant de scroller les offres sinon on ne peut pas toutes les récupérer
-        conteneur_scroll = offres_locator.first.locator('xpath=./../../../..')
-
-        scroll_element(conteneur_scroll,distance=2500)
-        
-
-        
-        print(f"Nombre d'offres trouvées : {offres_locator.count()}")
-        
-        for index, offre in enumerate(offres_locator.all()):
-
-            job_id = offre.get_attribute("data-job-id")
+        while next_page:
+            #on attend qu'au moins une offre ait chargée
+            page.wait_for_selector('[data-job-id]')
             
-            title_locator = offre.locator("strong").first
-    
-            title = title_locator.inner_text().strip()
+            # on récupère un "locator" qui pointe vers toutes les div ayant l'attribut data-job-id (les offres)
+            offres_locator = page.locator('div[data-job-id]')
 
-            is_banned = any(word in title.lower() for word in banned_words)
-            is_needed = any(word in title.lower() for word in needed_words)
+            # on récupère la barre de scroll permettant de scroller les offres sinon on ne peut pas toutes les récupérer
+            conteneur_scroll = offres_locator.first.locator('xpath=./../../../..')
+            scroll_element(conteneur_scroll,distance=3000)
+            
+            print(f"Nombre d'offres trouvées : {offres_locator.count()}")
+            
+            for offre in offres_locator.all():
 
-            if not is_banned and is_needed:
-                print(f"Acceptée : ID: {job_id} | Titre: {title}")
-                offre.click()
-                time.sleep(1)
+                job_id = offre.get_attribute("data-job-id")
+                
+                title_locator = offre.locator("strong").first
+                title = title_locator.inner_text().strip()
+
+                is_banned = any(word in title.lower() for word in banned_words)
+                is_needed = any(word in title.lower() for word in needed_words)
+
+                if not is_banned and is_needed:
+                    print(f"Acceptée : ID: {job_id} | Titre: {title}")
+                    #offre.click()
+                    #time.sleep(1)
+                else:
+                    print(f"Refusée : ID: {job_id} | Titre: {title}")
+
+            next_button = page.locator('button[aria-label="View next page"]')
+            
+            if next_button.count()>0:
+                next_button.click()
+                # Attendre que la nouvelle page charge
+                page.wait_for_load_state("networkidle")
             else:
-                print(f"Refusée : ID: {job_id} | Titre: {title}")
-
-
-
-        page.pause()
+                next_page=False
 
         browser.close()
 
