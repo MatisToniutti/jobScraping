@@ -3,3 +3,4 @@ __pycache__/
 .env
 state.json
 notes.txt
+jobs_scraping.db

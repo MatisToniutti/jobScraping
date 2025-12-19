@@ -1,4 +1,5 @@
 from playwright.sync_api import sync_playwright
+from sqlitedb import get_connection, create_offers_table, insert_offer
 import time
 import random
 
