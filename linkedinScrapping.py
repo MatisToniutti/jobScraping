@@ -10,6 +10,8 @@ def run_scraper():
     #liste des mots qui permettent de considérer une offre
     needed_words = ["ia", "ai","data", "ml", "cv", "nlp", "llm", "agent"]
 
+    conn = get_connection()
+
     # Le "with" garantit que le navigateur se ferme proprement même s'il y a une erreur (pas de processus fantomes)
     with sync_playwright() as p:
         # headless=False pour voir chromium en live et les actions de playwright
@@ -46,9 +48,15 @@ def run_scraper():
                 is_needed = any(word in title.lower() for word in needed_words)
 
                 if not is_banned and is_needed:
+                    link = f"https://www.linkedin.com/jobs/view/{job_id}/"
                     print(f"Acceptée : ID: {job_id} | Titre: {title}")
                     #offre.click()
                     #time.sleep(1)
+                    insert_offer(conn,
+                                 job_id="linkedin-"+job_id,
+                                 website="linkedin",
+                                 name=title,
+                                 link=link)
                 else:
                     print(f"Refusée : ID: {job_id} | Titre: {title}")
 
@@ -56,8 +64,6 @@ def run_scraper():
             
             if next_button.count()>0:
                 next_button.click()
-                # Attendre que la nouvelle page charge
-                page.wait_for_load_state("networkidle")
             else:
                 next_page=False
 
