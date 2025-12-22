@@ -21,6 +21,7 @@ def create_offers_table(conn):
             name TEXT,
             company TEXT,
             city TEXT,
+            state TEXT,
             country TEXT,
             link TEXT,
             date_added TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -28,14 +29,14 @@ def create_offers_table(conn):
     ''')
     conn.commit()
 
-def insert_offer(conn, job_id, website="", description="", name="", company="",city="",country="",link=""):
+def insert_offer(conn, job_id, website="", description="", name="", company="",city="",state="",country="",link=""):
     """Insère une annonce en ignorant les doublons."""
     try:
         cursor = conn.cursor()
         cursor.execute('''
-            INSERT OR IGNORE INTO offers (id, website, description, name, company, city, country, link)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        ''', (job_id, website, description, name, company, city, country, link))
+            INSERT OR IGNORE INTO offers (id, website, description, name, company, city, state, country, link)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (job_id, website, description, name, company, city, state, country, link))
         conn.commit()
     except sqlite3.Error as e:
         print(f"Erreur SQLite : {e}")
