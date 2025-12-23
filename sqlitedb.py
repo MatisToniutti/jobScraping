@@ -43,6 +43,29 @@ def insert_offer(conn, job_id, website="", description="", name="", company="",c
     except sqlite3.Error as e:
         print(f"Erreur SQLite : {e}")
 
+def get_unprocessed_offers(conn):
+    """Retourne les offres qu'on a pas encore définies comme intéressantes ou non"""
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+
+    cursor.execute('''
+                   Select * 
+                   from offers
+                   where interest = 0
+                   ''')
+    
+    return cursor.fetchall()
+
+def set_interest_offer(conn, id, value):
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    cursor.execute('''
+                    UPDATE offers
+                    SET interest = ?
+                    WHERE id = ?
+                   ''', (value, id))
+    conn.commit()
+
 if __name__ == "__main__":
     conn = get_connection()
     create_offers_table(conn)
