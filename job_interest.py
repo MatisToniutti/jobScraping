@@ -54,12 +54,12 @@ def give_interest_to_jobs():
         print(f"Résultat : {response}")
         lines = response.strip().split('\n')
 
-        # if response == "no":
-        #     set_interest_offer(conn, 2, offer["id"])
-        # elif response == "yes":
-        #     set_interest_offer(conn, 1, offer["id"])
-        # else:
-        #     print("Erreur : la réponse du modèle n'est ni 'Yes' ni 'No'")
+        if "no" in lines[0]:
+            set_interest_offer(conn, id=offer["id"], value=2)
+        elif "yes" in lines[0]:
+            set_interest_offer(conn, id=offer["id"], value=1)
+        else:
+            print("Erreur : la réponse du modèle n'est ni 'Yes' ni 'No'")
 
 if __name__ == "__main__":
     give_interest_to_jobs()
