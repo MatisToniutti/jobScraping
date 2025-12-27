@@ -11,16 +11,16 @@ def run_scraper():
     needed_words = ["ia", "ai","data", "ml", "cv", "nlp", "llm", "agent"]
 
     offers_links = [
-             "https://www.linkedin.com/jobs/search/?currentJobId=4343539070&f_TPR=r604800&geoId=105015875&keywords=ia&origin=JOB_SEARCH_PAGE_SEARCH_BUTTON&refresh=true",
-            # "https://www.linkedin.com/jobs/search/?currentJobId=4328840036&f_TPR=r604800&geoId=105015875&keywords=data%20scientist&origin=JOB_SEARCH_PAGE_JOB_FILTER&refresh=true",           
-            # "https://www.linkedin.com/jobs/search/?currentJobId=4268215805&f_TPR=r604800&geoId=104738515&keywords=ai&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
-            # "https://www.linkedin.com/jobs/search/?currentJobId=4328649541&f_TPR=r604800&geoId=103819153&keywords=ai&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
-            # "https://www.linkedin.com/jobs/search/?currentJobId=4328720114&f_TPR=r604800&geoId=105117694&keywords=ai&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
-            # "https://www.linkedin.com/jobs/search/?currentJobId=4327998636&f_TPR=r604800&geoId=100456013&keywords=ai&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
-            # "https://www.linkedin.com/jobs/search/?currentJobId=4268215805&f_TPR=r604800&geoId=104738515&keywords=data%20scientist&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
-            # "https://www.linkedin.com/jobs/search/?currentJobId=4328649541&f_TPR=r604800&geoId=103819153&keywords=data%20scientist&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
-            # "https://www.linkedin.com/jobs/search/?currentJobId=4328720114&f_TPR=r604800&geoId=105117694&keywords=data%20scientist&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
-            # "https://www.linkedin.com/jobs/search/?currentJobId=4327998636&f_TPR=r604800&geoId=100456013&keywords=data%20scientist&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
+            "https://www.linkedin.com/jobs/search/?currentJobId=4343539070&f_TPR=r604800&geoId=105015875&keywords=ia&origin=JOB_SEARCH_PAGE_SEARCH_BUTTON&refresh=true",
+            "https://www.linkedin.com/jobs/search/?currentJobId=4328840036&f_TPR=r604800&geoId=105015875&keywords=data%20scientist&origin=JOB_SEARCH_PAGE_JOB_FILTER&refresh=true",           
+            "https://www.linkedin.com/jobs/search/?currentJobId=4268215805&f_TPR=r604800&geoId=104738515&keywords=ai&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
+            "https://www.linkedin.com/jobs/search/?currentJobId=4328649541&f_TPR=r604800&geoId=103819153&keywords=ai&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
+            "https://www.linkedin.com/jobs/search/?currentJobId=4328720114&f_TPR=r604800&geoId=105117694&keywords=ai&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
+            "https://www.linkedin.com/jobs/search/?currentJobId=4327998636&f_TPR=r604800&geoId=100456013&keywords=ai&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
+            "https://www.linkedin.com/jobs/search/?currentJobId=4268215805&f_TPR=r604800&geoId=104738515&keywords=data%20scientist&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
+            "https://www.linkedin.com/jobs/search/?currentJobId=4328649541&f_TPR=r604800&geoId=103819153&keywords=data%20scientist&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
+            "https://www.linkedin.com/jobs/search/?currentJobId=4328720114&f_TPR=r604800&geoId=105117694&keywords=data%20scientist&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
+            "https://www.linkedin.com/jobs/search/?currentJobId=4327998636&f_TPR=r604800&geoId=100456013&keywords=data%20scientist&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
         ]
 
     conn = get_connection()
@@ -52,45 +52,55 @@ def run_scraper():
                 
                 for offre in offres_locator.all():
 
-                    job_id = offre.get_attribute("data-job-id")
-                    
-                    title_locator = offre.locator("strong").first
-                    title = title_locator.inner_text().strip()
+                    try:
 
-                    is_banned = any(word in title.lower() for word in banned_words)
-                    is_needed = any(word in title.lower() for word in needed_words)
-
-                    if not is_banned and is_needed:
-                        link = f"https://www.linkedin.com/jobs/view/{job_id}/"
-                        # print(f"Acceptée : ID: {job_id} | Titre: {title}")
-                        offre.click()
-                        time.sleep(1)
-                        offer_details = page.locator(".jobs-search__job-details")
-                        company_selector = ".job-details-jobs-unified-top-card__company-name a"
-                        company_name = offer_details.locator(company_selector).first.inner_text().strip()
-                        location_selector = ".job-details-jobs-unified-top-card__primary-description-container span span"
-                        location = offer_details.locator(location_selector).first.inner_text().strip()
-                        location = location.split(',')
-                        location = [s.strip() for s in location]
-                        description_selector = ".jobs-description__container div div div p"
-                        description = offer_details.locator(description_selector).first.inner_text().strip()
-                        # print(f"Entreprise trouvée : {company_name}")
-                        # print(f"Emplacement : {location}")
-                        # print(f"Description : {description}")
-                        # page.pause()
+                        job_id = offre.get_attribute("data-job-id")
                         
-                        insert_offer(conn,
-                                    job_id="linkedin-"+job_id,
-                                    website="linkedin",
-                                    company=company_name,
-                                    description=description,
-                                    city=location[0] if len(location) >2 else "",
-                                    state=location[1] if len(location) >2 else "",
-                                    country=location[2] if len(location) >2 else "",
-                                    name=title,
-                                    link=link)
-                    # else:
-                    #     print(f"Refusée : ID: {job_id} | Titre: {title}")
+                        title_locator = offre.locator("strong").first
+                        title = title_locator.inner_text().strip()
+
+                        is_banned = any(word in title.lower() for word in banned_words)
+                        is_needed = any(word in title.lower() for word in needed_words)
+
+                        if not is_banned and is_needed:
+                            link = f"https://www.linkedin.com/jobs/view/{job_id}/"
+                            # print(f"Acceptée : ID: {job_id} | Titre: {title}")
+                            offre.click()
+                            offer_details = page.locator(".jobs-search__job-details")
+                            offer_details.wait_for(state="visible", timeout=5000)
+                            company_selector = ".job-details-jobs-unified-top-card__company-name a"
+                            company_name = offer_details.locator(company_selector).first.inner_text().strip()
+                            location_selector = ".job-details-jobs-unified-top-card__primary-description-container span span"
+                            location = offer_details.locator(location_selector).first.inner_text().strip()
+                            location = location.split(',')
+                            location = [s.strip() for s in location]
+                            description_selector = ".jobs-description__container div div div p"
+                            description = offer_details.locator(description_selector).first.inner_text().strip()
+                            # print(f"Entreprise trouvée : {company_name}")
+                            # print(f"Emplacement : {location}")
+                            # print(f"Description : {description}")
+                            # page.pause()
+                            
+                            insert_offer(conn,
+                                        job_id="linkedin-"+job_id,
+                                        website="linkedin",
+                                        company=company_name,
+                                        description=description,
+                                        city=location[0] if len(location) >2 else "",
+                                        state=location[1] if len(location) >2 else "",
+                                        country=location[2] if len(location) >2 else "",
+                                        name=title,
+                                        link=link)
+                        # else:
+                        #     print(f"Refusée : ID: {job_id} | Titre: {title}")
+
+                    except TimeoutError:
+                        print(f"Erreur : L'offre a mis trop de temps à charger. Passage à la suivante.")
+                        continue # On passe à la prochaine offre
+                    except Exception as e:
+                        print(f"Une erreur imprévue est survenue : {e}")
+                        continue
+                        
 
                 next_button = page.locator('button[aria-label="View next page"]')
                 
