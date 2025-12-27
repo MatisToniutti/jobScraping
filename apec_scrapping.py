@@ -10,7 +10,7 @@ def run_scraper():
     #liste des mots qui permettent de considérer une offre
     needed_words = ["ia", "ai","data", "ml", "cv", "nlp", "llm", "agent"]
 
-    keywords = ["ia, data scientist"]
+    keywords = ["ia", "data scientist"]
     offers_url = "https://www.apec.fr/cms/webservices/rechercheOffre"
     offer_url = "https://www.apec.fr/cms/webservices/offre/public?numeroOffre="
     payload = {
@@ -50,8 +50,7 @@ def run_scraper():
         "pointGeolocDeReference": {
             "distance": 0
         },
-        "motsCles": "",
-        "anciennetePublication": "101851"
+        "motsCles": "ia"
     }
 
     headers = {
@@ -90,6 +89,7 @@ def run_scraper():
 
             nb_offers = data["totalCount"]
             payload["pagination"]["startIndex"] += 20
+            current_count+=20
 
 
 def clean_html(raw_html):
