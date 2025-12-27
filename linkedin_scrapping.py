@@ -8,7 +8,7 @@ def run_scraper():
     #liste des mots qu'on ne veut pas dans une offre
     banned_words = ["confirmé","product owner","stage","internship","alternance","stagiaire","intern","alternant","interim","freelance","docteur","phd","senior","expert","consultant","annotator","data engineer"]
     #liste des mots qui permettent de considérer une offre
-    needed_words = ["ia", "ai","data", "ml", "cv", "nlp", "llm", "agent"]
+    needed_words = [" ia", "ia ", " ai", "ai ","data", "ml", "cv", "nlp", "llm", "agent"]
 
     offers_links = [
             "https://www.linkedin.com/jobs/search/?currentJobId=4343539070&f_TPR=r604800&geoId=105015875&keywords=ia&origin=JOB_SEARCH_PAGE_SEARCH_BUTTON&refresh=true",
