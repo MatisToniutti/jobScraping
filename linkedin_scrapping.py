@@ -3,24 +3,27 @@ from sqlitedb import get_connection, create_offers_table, insert_offer
 import time
 import random
 
+LAST_DAY = "r86400"
+LAST_WEEK = "r604800"
 
 def run_scraper():
     #liste des mots qu'on ne veut pas dans une offre
-    banned_words = ["confirmé","product owner","stage","internship","alternance","stagiaire","intern","alternant","interim","freelance","docteur","phd","senior","expert","consultant","annotator","data engineer"]
+    banned_words = ["confirmé","product owner","stage","internship","alternance","stagiaire","intern","alternant","interim","freelance","docteur","phd","senior","expert","consultant","annotator","annotation", "expérimenté", "data engineer"]
     #liste des mots qui permettent de considérer une offre
     needed_words = [" ia", "ia ", " ai", "ai ","data", "ml", "cv", "nlp", "llm", "agent"]
 
+    date_posted = LAST_DAY
     offers_links = [
-            "https://www.linkedin.com/jobs/search/?currentJobId=4343539070&f_TPR=r604800&geoId=105015875&keywords=ia&origin=JOB_SEARCH_PAGE_SEARCH_BUTTON&refresh=true",
-            "https://www.linkedin.com/jobs/search/?currentJobId=4328840036&f_TPR=r604800&geoId=105015875&keywords=data%20scientist&origin=JOB_SEARCH_PAGE_JOB_FILTER&refresh=true",           
-            "https://www.linkedin.com/jobs/search/?currentJobId=4268215805&f_TPR=r604800&geoId=104738515&keywords=ai&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
-            "https://www.linkedin.com/jobs/search/?currentJobId=4328649541&f_TPR=r604800&geoId=103819153&keywords=ai&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
-            "https://www.linkedin.com/jobs/search/?currentJobId=4328720114&f_TPR=r604800&geoId=105117694&keywords=ai&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
-            "https://www.linkedin.com/jobs/search/?currentJobId=4327998636&f_TPR=r604800&geoId=100456013&keywords=ai&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
-            "https://www.linkedin.com/jobs/search/?currentJobId=4268215805&f_TPR=r604800&geoId=104738515&keywords=data%20scientist&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
-            "https://www.linkedin.com/jobs/search/?currentJobId=4328649541&f_TPR=r604800&geoId=103819153&keywords=data%20scientist&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
-            "https://www.linkedin.com/jobs/search/?currentJobId=4328720114&f_TPR=r604800&geoId=105117694&keywords=data%20scientist&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
-            "https://www.linkedin.com/jobs/search/?currentJobId=4327998636&f_TPR=r604800&geoId=100456013&keywords=data%20scientist&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
+            f"https://www.linkedin.com/jobs/search/?f_TPR={date_posted}&geoId=105015875&keywords=ia&origin=JOB_SEARCH_PAGE_SEARCH_BUTTON&refresh=true",
+            f"https://www.linkedin.com/jobs/search/?f_TPR={date_posted}&geoId=105015875&keywords=data%20scientist&origin=JOB_SEARCH_PAGE_JOB_FILTER&refresh=true",           
+            f"https://www.linkedin.com/jobs/search/?f_TPR={date_posted}&geoId=104738515&keywords=ai&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
+            f"https://www.linkedin.com/jobs/search/?f_TPR={date_posted}&geoId=103819153&keywords=ai&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
+            f"https://www.linkedin.com/jobs/search/?f_TPR={date_posted}&geoId=105117694&keywords=ai&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
+            f"https://www.linkedin.com/jobs/search/?f_TPR={date_posted}&geoId=100456013&keywords=ai&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
+            f"https://www.linkedin.com/jobs/search/?f_TPR={date_posted}&geoId=104738515&keywords=data%20scientist&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
+            f"https://www.linkedin.com/jobs/search/?f_TPR={date_posted}&geoId=103819153&keywords=data%20scientist&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
+            f"https://www.linkedin.com/jobs/search/?f_TPR={date_posted}&geoId=105117694&keywords=data%20scientist&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
+            f"https://www.linkedin.com/jobs/search/?f_TPR={date_posted}&geoId=100456013&keywords=data%20scientist&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
         ]
 
     conn = get_connection()
@@ -96,7 +99,7 @@ def run_scraper():
 
                     except TimeoutError:
                         print(f"Erreur : L'offre a mis trop de temps à charger. Passage à la suivante.")
-                        continue # On passe à la prochaine offre
+                        continue
                     except Exception as e:
                         print(f"Une erreur imprévue est survenue : {e}")
                         continue
@@ -128,7 +131,7 @@ def save_context():
 
         browser.close()
 
-def scroll(page, direction="down", sleep_min = 1, sleep_max = 2):
+def scroll(page, direction="down", sleep_min = 0.7, sleep_max = 1):
     for i in range(5):
         # distance de scroll aléatoire pour plus de réalisme
         distance = random.randint(600, 900)

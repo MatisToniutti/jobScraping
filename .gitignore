@@ -4,3 +4,5 @@ __pycache__/
 state.json
 notes.txt
 jobs_scraping.db
+test.py
+liens.txt
