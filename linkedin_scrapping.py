@@ -36,6 +36,7 @@ def run_scraper():
         page = context.new_page()
         
         for offers_link in offers_links:
+            print(offers_link)
             page.goto(offers_link)
 
             next_page = True
@@ -72,7 +73,12 @@ def run_scraper():
                             offer_details = page.locator(".jobs-search__job-details")
                             offer_details.wait_for(state="visible", timeout=5000)
                             company_selector = ".job-details-jobs-unified-top-card__company-name a"
-                            company_name = offer_details.locator(company_selector).first.inner_text().strip()
+                            company_locator = offer_details.locator(company_selector).first
+                            # count() est instantané, il ne force pas d'attente
+                            if company_locator.count() > 0:
+                                company_name = company_locator.inner_text().strip()
+                            else:
+                                company_name = "Inconnu"
                             location_selector = ".job-details-jobs-unified-top-card__primary-description-container span span"
                             location = offer_details.locator(location_selector).first.inner_text().strip()
                             location = location.split(',')
@@ -155,8 +161,8 @@ def scroll_element(element, distance=1000):
             element.evaluate(f"el => el.scrollTop += {step}")
             pixels_parcourus += step
             
-            time.sleep(random.uniform(0.02, 0.06))
-        time.sleep(random.uniform(0.1,0.3))
+            time.sleep(random.uniform(0.02, 0.04))
+        time.sleep(random.uniform(0.1,0.2))
 
 if __name__ == "__main__":
     run_scraper()

@@ -21,7 +21,7 @@ def give_interest_to_jobs():
         model_id,
         torch_dtype=torch.bfloat16,
         device_map="auto",
-        quantization_config=quantization_config
+        #quantization_config=quantization_config
     ).eval()
 
     tokenizer = AutoTokenizer.from_pretrained(model_id)
