@@ -1,11 +1,13 @@
-import linkedin_scrapping
-import apec_scrapping
+import linkedin_scraping
+import apec_scraping
+import france_travail_scraping
 from job_interest import give_interest_to_jobs
 from test import export_links
 
 def main():
-    linkedin_scrapping.run_scraper()
-    apec_scrapping.run_scraper()
+    linkedin_scraping.run_scraper()
+    apec_scraping.run_scraper()
+    
     give_interest_to_jobs()
     export_links()
 
