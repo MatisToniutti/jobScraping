@@ -97,7 +97,7 @@ def run_scraper():
                                     description = desc_locator.inner_text(timeout=2000).strip()
                                 else:
                                     continue
-                                print("insert")
+                                
                                 insert_offer(conn,
                                             job_id="linkedin-"+job_id,
                                             website="linkedin",
@@ -125,7 +125,6 @@ def run_scraper():
                         next_button.click()
                     else:
                         next_page=False
-
             except Exception as e:
                 # Ici on attrape les erreurs au niveau de la PAGE/LIEN
                 print(f"Erreur critique sur le lien {offers_link} : {e}")
