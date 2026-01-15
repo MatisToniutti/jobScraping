@@ -1,14 +1,14 @@
 import requests
 import json
 from sqlitedb import get_connection, insert_offer
-from bs4 import BeautifulSoup
+from utils import clean_html
 
 def run_scraper():
     conn = get_connection()
     #liste des mots qu'on ne veut pas dans une offre
-    banned_words = ["confirmé","product owner","stage","internship","alternance","stagiaire","intern","alternant","interim","freelance","docteur","phd","senior","expert","consultant","annotator","data engineer"]
+    banned_words = ["confirmé","product owner","stage","internship","alternance","stagiaire","intern","alternant","interim","freelance","docteur","phd","senior","expert","consultant","annotator","annotation", "expérimenté", "data engineer"]
     #liste des mots qui permettent de considérer une offre
-    needed_words = ["ia", "ai","data", "ml", "cv", "nlp", "llm", "agent"]
+    needed_words = [" ia", "ia ", " ai", "ai ","data", "ml", "cv", "nlp", "llm", "agent"]
 
     keywords = ["ia", "data scientist"]
     offers_url = "https://www.apec.fr/cms/webservices/rechercheOffre"
@@ -78,7 +78,7 @@ def run_scraper():
                                         job_id="apec-"+offer_details["numeroOffre"],
                                         website="apec",
                                         company=offer_details["nomCompteEtablissement"],
-                                        description=description,
+                                        description=clean_html(description),
                                         city= "",
                                         state="",
                                         country="",
@@ -90,20 +90,6 @@ def run_scraper():
             nb_offers = data["totalCount"]
             payload["pagination"]["startIndex"] += 20
             current_count+=20
-
-
-def clean_html(raw_html):
-    # On "parse" le HTML
-    soup = BeautifulSoup(raw_html, "html.parser")
-    
-    # On récupère uniquement le texte
-    # separator=" " permet d'éviter que deux mots collés par des balises se rejoignent (ex: </b>Bonjour)
-    text = soup.get_text(separator=" ")
-    
-    # On nettoie les espaces en trop
-    clean_text = " ".join(text.split())
-    
-    return clean_text
 
 if __name__ == "__main__":
     run_scraper()

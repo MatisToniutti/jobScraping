@@ -1,8 +1,12 @@
 import requests
 import os
 from dotenv import load_dotenv
+from sqlitedb import get_connection, insert_offer
+from utils import clean_html
 
-def get_access_token(client_ID, client_secret):
+def get_access_token():
+    client_ID = os.getenv("ID_client_FT")
+    client_secret = os.getenv("Key_FT")
     url = "https://entreprise.francetravail.fr/connexion/oauth2/access_token?realm=/partenaire"
     scope = "o2dsoffre api_offresdemploiv2"
 
@@ -19,60 +23,65 @@ def get_access_token(client_ID, client_secret):
     if response.status_code == 200:
         return response.json().get("access_token")
     else:
-        print(f"❌ Erreur Token - Status: {response.status_code}")
+        print(f"Erreur Token - Status: {response.status_code}")
         print(f"Détail: {response.text}")
         return None
 
-def fetch_france_travail_jobs(token):
+def run_scraper():
+    conn = get_connection()
+    #liste des mots qu'on ne veut pas dans une offre
+    banned_words = ["confirmé","product owner","stage","internship","alternance","stagiaire","intern","alternant","interim","freelance","docteur","phd","senior","expert","consultant","annotator","annotation", "expérimenté", "data engineer"]
+    #liste des mots qui permettent de considérer une offre
+    needed_words = [" ia", "ia ", " ai", "ai ","data", "ml", "cv", "nlp", "llm", "agent"]
+
+    keywords = ["ia", "data"]
+    load_dotenv()
+    token = get_access_token()
+
     url = "https://api.francetravail.io/partenaire/offresdemploi/v2/offres/search"
     
     headers = {
         "Authorization": f"Bearer {token}",
         "Accept": "application/json",
-        # 👇 AJOUT CRUCIAL : La pagination est souvent obligatoire ou recommandée
-        # Cela demande les 50 premiers résultats (l'API limite souvent à 150 max par appel)
-        "range": "0-49" 
+        
     }
     
     params = {
-        "motsCles": "IA", # "IA" en majuscules est parfois mieux interprété, mais "ia" marche aussi
-        # Optionnel : ajouter un filtre de date pour ne pas avoir de vieux trucs
-        # "minCreationDate": "2024-01-01T00:00:00Z" 
+        "motsCles": "IA",
+        "publieeDepuis": 1,
+        "range": "0-149",
+        "typeContrat": "CDI"
     }
     
-    response = requests.get(url, headers=headers, params=params)
+    for keyword in keywords:
+        range =  0
+        offresVues = 0
+        params["motsCles"] = keyword
+
+        while range==offresVues:
+            response = requests.get(url, headers=headers, params=params)
+            if response.status_code == 204: #pas d'offres
+                break
+            range += 150
+            offresVues += len(response.json()["resultats"])
+            for offer in response.json()["resultats"]:
+                is_banned = any(word in offer["intitule"].lower() for word in banned_words)
+                is_needed = any(word in offer["intitule"].lower() for word in needed_words)
+                if not is_banned and is_needed:
+                    #si entreprise n'existe pas on a un dictionnaire vide et non une erreur
+                    entreprise = offer.get("entreprise", {})
+                    nom_entreprise = entreprise.get("nom", "")
+                    insert_offer(conn,
+                                        job_id="ft-"+offer["id"],
+                                        website="france_travail",
+                                        company=nom_entreprise,
+                                        description=offer["description"],
+                                        city= "",
+                                        state="",
+                                        country="",
+                                        name=offer["intitule"],
+                                        link="https://candidat.francetravail.fr/offres/recherche/detail/"+offer["id"])    
     
-    if response.status_code == 200: # OK
-        return response.json().get("resultats", [])
-    elif response.status_code == 206: # Partial Content (C'est normal avec le Range, ça veut dire "Succès")
-        return response.json().get("resultats", [])
-    elif response.status_code == 204: # Pas d'offres
-        print("ℹ️ Aucune offre trouvée pour ces critères.")
-        return []
-    else:
-        print(f"❌ Erreur API : {response.status_code}")
-        # On essaie d'afficher le message d'erreur JSON propre s'il existe
-        try:
-            error_detail = response.json()
-            print(f"Message API : {error_detail}")
-        except:
-            print(f"Raw Response : {response.text}")
-        return []
 
 if __name__ == "__main__":
-    load_dotenv()
-    CLIENT_ID = os.getenv("ID_client_FT")
-    CLIENT_SECRET = os.getenv("Key_FT")
-
-    if not CLIENT_ID or not CLIENT_SECRET:
-        print("ERREUR : Les clés ne sont pas chargées depuis le .env")
-    else:
-        token = get_access_token(client_ID=CLIENT_ID, client_secret=CLIENT_SECRET)
-        
-        if token:
-            print(f"✅ Token généré (début) : {token}")
-            jobs = fetch_france_travail_jobs(token=token)
-            print(f"Nombre d'offres trouvées : {len(jobs)}")
-            # Afficher juste le titre de la première offre pour vérifier
-            if jobs:
-                print(f"Exemple : {jobs[0].get('intitule')}")
+    run_scraper()

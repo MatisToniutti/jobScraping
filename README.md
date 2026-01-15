@@ -10,7 +10,7 @@ Cerveau IA : Qwen 3 4B Instruct (via Hugging Face Transformers).
 Base de données : SQLite.
 
 💡 **Fonctionnement**
-Extraction : Le pipeline scrape des offres multi-sources (LinkedIn, APEC, etc.) et les stocke dans une base SQLite structurée.
+Extraction : Le pipeline scrape des offres multi-sources (LinkedIn, APEC, France Travail) et les stocke dans une base SQLite structurée.
 
 Nettoyage : Les descriptions HTML sont converties en texte brut via BeautifulSoup pour optimiser le traitement par l'IA.
 

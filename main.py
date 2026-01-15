@@ -5,8 +5,12 @@ from job_interest import give_interest_to_jobs
 from test import export_links
 
 def main():
-    linkedin_scraping.run_scraper()
     apec_scraping.run_scraper()
+    print("Apec scraping effectué")
+    france_travail_scraping.run_scraper()
+    print("france travail scraping effectué")
+    linkedin_scraping.run_scraper()
+    print("linkedin scraping effectué")
     
     give_interest_to_jobs()
     export_links()
