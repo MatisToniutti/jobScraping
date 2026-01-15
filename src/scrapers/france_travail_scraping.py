@@ -1,8 +1,8 @@
 import requests
 import os
 from dotenv import load_dotenv
-from src.utils.sqlitedb import get_connection, insert_offer
-from src.utils.utils import clean_html
+from utils.sqlitedb import get_connection, insert_offer
+from utils.utils import clean_html
 
 def get_access_token():
     client_ID = os.getenv("ID_client_FT")

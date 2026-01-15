@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 import sqlite3
-
+from utils.sqlitedb import get_connection
 def clean_html(raw_html):
     # On "parse" le HTML
     soup = BeautifulSoup(raw_html, "html.parser")
@@ -15,7 +15,7 @@ def clean_html(raw_html):
     return clean_text
 
 def export_links():
-    conn = sqlite3.connect('jobs_scraping.db') # 
+    conn = get_connection()
     cursor = conn.cursor()
 
     # On récupère les liens des offres intéressantes (value = 1)

@@ -1,7 +1,7 @@
 import requests
 import json
-from src.utils.sqlitedb import get_connection, insert_offer
-from src.utils.utils import clean_html
+from utils.sqlitedb import get_connection, insert_offer
+from utils.utils import clean_html
 
 def run_scraper():
     conn = get_connection()

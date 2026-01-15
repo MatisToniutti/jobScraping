@@ -1,8 +1,18 @@
 import sqlite3
+import os
 
 def get_connection(db_name="jobs_scraping.db"):
     """Crée ou récupère la connexion à la base de données."""
-    conn = sqlite3.connect(db_name)
+    # 1. On récupère le dossier où se trouve CE fichier (src/utils/)
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    # 2. On remonte de deux niveaux pour atteindre la racine du projet
+    # (utils -> src -> racine)
+    project_root = os.path.dirname(os.path.dirname(current_dir))
+    
+    # 3. On construit le chemin vers le dossier data
+    data_dir = os.path.join(project_root, "src/database")
+    conn = sqlite3.connect(os.path.join(data_dir, db_name))
     # Cette ligne permet d'accéder aux colonnes par leur nom (ex: row['name'])
     conn.row_factory = sqlite3.Row 
     return conn
