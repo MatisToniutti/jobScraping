@@ -1,6 +1,6 @@
 from transformers import AutoTokenizer, BitsAndBytesConfig, AutoModelForCausalLM
 import torch
-from sqlitedb import get_connection, get_unprocessed_offers, set_interest_offer
+from src.utils.sqlitedb import get_connection, get_unprocessed_offers, set_interest_offer
 from tqdm import tqdm
 
 def give_interest_to_jobs():
