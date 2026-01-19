@@ -3,6 +3,7 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from utils.sqlitedb import get_connection, insert_offer
+from datetime import datetime, timedelta, timezone
 from utils.utils import clean_html
 
 def run_scraper():
@@ -11,7 +12,24 @@ def run_scraper():
     banned_words = ["confirmé","product owner","stage","internship","alternance","stagiaire","intern","alternant","interim","freelance","docteur","phd","senior","expert","consultant","annotator","annotation", "expérimenté", "data engineer"]
     #liste des mots qui permettent de considérer une offre
     needed_words = [" ia", "ia ", " ai", "ai ","data", "ml", "cv", "nlp", "llm", "agent"]
-    
+
+    headers_details = {
+        'accept': 'application/json, application/xml',
+        'accept-language': 'fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7',
+        'origin': 'https://www.welcometothejungle.com',
+        'priority': 'u=1, i',
+        'referer': 'https://www.welcometothejungle.com/',
+        'sec-ch-ua': '"Google Chrome";v="135", "Not-A.Brand";v="8", "Chromium";v="135"',
+        'sec-ch-ua-mobile': '?0',
+        'sec-ch-ua-platform': '"Linux"',
+        'sec-fetch-dest': 'empty',
+        'sec-fetch-mode': 'cors',
+        'sec-fetch-site': 'same-site',
+        'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36',
+        'wttj-user-language': 'fr',
+        'x-csrf-token': 'AlQfM2gaORY-WCZsNnonWxIwH3sPUi4cigHu9STzf3b-CWb3XiWLI8HN',
+        # 'cookie': 'sp=5af7fdca-5266-4250-85fb-32adcc7cb010; _cs_c=0; _hjSessionUser_45018=eyJpZCI6IjI4MDJiNWEzLTBmZTEtNWM2Ny04ZGI3LTkzNGZkNWVhMDk4NyIsImNyZWF0ZWQiOjE3NjY4MzE2MjY1NjMsImV4aXN0aW5nIjp0cnVlfQ==; gb_session_id=bd471a65-fe37-455a-bcaa-7f27d507d006; _BEAMER_USER_ID_lXMXoTfb15511=cd88093f-d22c-4fd7-be4d-001d9a181cc7; _gcl_au=1.1.1561383931.1766830500.1316634931.1767699963.1767700055; wttj_api_session_key=SFMyNTY.g3QAAAABbQAAAAtfY3NyZl90b2tlbm0AAAAYazNXRlFJbWxYa0RBdS1FaEpZSDdGamZS.6H8AtCOI6VNLlw-6FaNqMHKILoXE7lc3WYEbTohuhjk; _sp_ses.407f=*; _hjSession_45018=eyJpZCI6IjMxNjM3ZjgxLTBiZmItNDJhYy05NmMzLTFkMTk1MjUwMWE0NSIsImMiOjE3Njg4MjgwODIwNDcsInMiOjAsInIiOjAsInNiIjowLCJzciI6MCwic2UiOjAsImZzIjowLCJzcCI6MH0=; csrf-token=AlQfM2gaORY-WCZsNnonWxIwH3sPUi4cigHu9STzf3b-CWb3XiWLI8HN; _cs_id=2f1e5c55-85b2-a53c-84fa-316fe0002e78.1766831626.6.1768832227.1768827426.1.1800995626455.1.x; _cs_s=6.0.U.9.1768834027119; _sp_id.407f=9b3bd816-949d-4fd8-88c6-c9cde3d13511.1766830500.6.1768832232.1768823906.c27e4b98-0066-4edc-b777-a22e3c491bc0.4d4e5b82-5667-4c02-90ea-151a6d11fc82.6eaf8972-4018-463d-9e59-ba39b4562367.1768827435834.75',
+    }
     headers = {
         'Accept': '*/*',
         'Accept-Language': 'fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7',
@@ -39,11 +57,39 @@ def run_scraper():
             headers=headers,
             data=data,
         )
-
         results = response.json()["results"][0]
+        for offer in results["hits"]:
+            is_banned = any(word in offer["name"].lower() for word in banned_words)
+            is_needed = any(word in offer["name"].lower() for word in needed_words)
+            if not is_banned and is_needed and is_recent_enough(offer["published_at"]):
+                link = "https://www.welcometothejungle.com/fr/companies/" + offer["organization"]["slug"] +"/jobs/"+offer["slug"]
+                api = "https://api.welcometothejungle.com/api/v1/organizations/"+ offer["organization"]["slug"] +"/jobs/"+offer["slug"]
+                response_details = requests.get(
+                    api,
+                    headers=headers_details,
+                )
+                insert_offer(conn,
+                            job_id="wttj-"+offer["slug"],
+                            website="wttj",
+                            company=offer["organization"]["name"],
+                            description= clean_html(response_details.json()["job"]["description"]),
+                            city= offer["offices"][0]["city"],
+                            state=offer["offices"][0]["state"],
+                            country=offer["offices"][0]["country"],
+                            name=offer["name"],
+                            link=link)
 
-        print(results["nbHits"])
-        print(len(results["hits"]))
+def is_recent_enough(date_str):
+    now = datetime.now(timezone.utc)
     
+    # On calcule "hier à 17h00"
+    yesterday_17h = (now - timedelta(days=1)).replace(hour=17, minute=0, second=0, microsecond=0)
+    
+    # On convertit la string 'published_at' en objet datetime Python
+    # Le "Z" à la fin signifie UTC. replace(tzinfo=timezone.utc) assure la comparaison.
+    date_offer = datetime.fromisoformat(date_str.replace('Z', '+00:00'))
+    
+    return date_offer > yesterday_17h
+
 if __name__ == "__main__":
     run_scraper()
