@@ -5,9 +5,9 @@ from models.job_interest import give_interest_to_jobs
 from utils.utils import export_links
 
 def main():
-    #apec.run_scraper()
+    apec.run_scraper()
     print("Apec scraping effectué")
-    #ft.run_scraper()
+    ft.run_scraper()
     print("france travail scraping effectué")
     linkedin.run_scraper()
     print("linkedin scraping effectué")
