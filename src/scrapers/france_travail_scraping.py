@@ -3,6 +3,8 @@ import os
 from dotenv import load_dotenv
 from utils.sqlitedb import get_connection, insert_offer
 from utils.utils import clean_html
+from utils.vector_db import get_vector_collection, add_to_vector_db
+
 
 def get_access_token():
     client_ID = os.getenv("ID_client_FT")
@@ -29,6 +31,7 @@ def get_access_token():
 
 def run_scraper():
     conn = get_connection()
+    collection = get_vector_collection()
     #liste des mots qu'on ne veut pas dans une offre
     banned_words = ["confirmé","product owner","stage","internship","alternance","stagiaire","intern","alternant","interim","freelance","docteur","phd","senior","expert","consultant","annotator","annotation", "expérimenté", "data engineer"]
     #liste des mots qui permettent de considérer une offre
@@ -72,15 +75,27 @@ def run_scraper():
                     entreprise = offer.get("entreprise", {})
                     nom_entreprise = entreprise.get("nom", "")
                     insert_offer(conn,
-                                        job_id="ft-"+offer["id"],
-                                        website="france_travail",
-                                        company=nom_entreprise,
-                                        description=offer["description"],
-                                        city= "",
-                                        state="",
-                                        country="",
-                                        name=offer["intitule"],
-                                        link="https://candidat.francetravail.fr/offres/recherche/detail/"+offer["id"])    
+                                job_id="ft-"+offer["id"],
+                                website="france_travail",
+                                company=nom_entreprise,
+                                description=offer["description"],
+                                city= "",
+                                state="",
+                                country="",
+                                name=offer["intitule"],
+                                link="https://candidat.francetravail.fr/offres/recherche/detail/"+offer["id"])
+                    
+                    add_to_vector_db(collection=collection,offer_data={
+                                "job_id":"ft-"+offer["id"],
+                                "website":"france_travail",
+                                "company":nom_entreprise,
+                                "description":offer["description"],
+                                "city": "",
+                                "state":"",
+                                "country":"",
+                                "name":offer["intitule"],
+                                "link":"https://candidat.francetravail.fr/offres/recherche/detail/"+offer["id"]
+                            })    
     
 
 if __name__ == "__main__":

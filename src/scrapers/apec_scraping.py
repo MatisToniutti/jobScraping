@@ -2,9 +2,12 @@ import requests
 import json
 from utils.sqlitedb import get_connection, insert_offer
 from utils.utils import clean_html
+from utils.vector_db import get_vector_collection, add_to_vector_db
+
 
 def run_scraper():
     conn = get_connection()
+    collection = get_vector_collection()
     #liste des mots qu'on ne veut pas dans une offre
     banned_words = ["confirmé","product owner","stage","internship","alternance","stagiaire","intern","alternant","interim","freelance","docteur","phd","senior","expert","consultant","annotator","annotation", "expérimenté", "data engineer"]
     #liste des mots qui permettent de considérer une offre
@@ -84,6 +87,18 @@ def run_scraper():
                                         country="",
                                         name=offer_details["intitule"],
                                         link=link)
+                        
+                        add_to_vector_db(collection=collection,offer_data={
+                                "job_id":"apec-"+offer_details["numeroOffre"],
+                                "website":"apec",
+                                "company":"",#offer_details["nomCompteEtablissement"],
+                                "description":clean_html(description),
+                                "city": "",
+                                "state":"",
+                                "country":"",
+                                "name":offer_details["intitule"],
+                                "link":link
+                            })
             else:
                 print(f"Erreur : {response.status_code}")
 

@@ -5,8 +5,10 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from utils.sqlitedb import get_connection, insert_offer
 from datetime import datetime, timedelta, timezone
 from utils.utils import clean_html
+from utils.vector_db import get_vector_collection, add_to_vector_db
 
 def run_scraper():
+    collection = get_vector_collection()
     conn = get_connection()
     #liste des mots qu'on ne veut pas dans une offre
     banned_words = ["confirmé","product owner","stage","internship","alternance","stagiaire","intern","alternant","interim","freelance","docteur","phd","senior","expert","consultant","annotator","annotation", "expérimenté", "data engineer"]
@@ -78,6 +80,17 @@ def run_scraper():
                             country=offer["offices"][0]["country"],
                             name=offer["name"],
                             link=link)
+                add_to_vector_db(collection=collection,offer_data={
+                                "job_id":"wttj-"+offer["slug"],
+                                "website":"wttj",
+                                "company":offer["organization"]["name"],
+                                "description": clean_html(response_details.json()["job"]["description"]),
+                                "city": offer["offices"][0]["city"],
+                                "state":offer["offices"][0]["state"],
+                                "country":offer["offices"][0]["country"],
+                                "name":offer["name"],
+                                "link":link
+                            })
 
 def is_recent_enough(date_str):
     now = datetime.now(timezone.utc)

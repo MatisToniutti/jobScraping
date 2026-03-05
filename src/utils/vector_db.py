@@ -34,6 +34,13 @@ def add_to_vector_db(collection, offer_data):
         }]
     )
 
+def clear_vector_collection(collection):
+    data = collection.get()
+    ids = data['ids']
+    if ids:
+        collection.delete(ids = ids)
+    else:
+        print("Base chromadb déjà vide")
 
 if __name__ == "__main__":
     col = get_vector_collection()
@@ -64,3 +71,5 @@ if __name__ == "__main__":
     for i in range(len(results['ids'][0])):
         print(f"Match {i+1}: {results['documents'][0][i][:100]}...")
         print(f"Score de distance: {results['distances'][0][i]}")
+
+    clear_vector_collection(col)
