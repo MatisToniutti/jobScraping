@@ -23,7 +23,7 @@ def export_links():
         SELECT link 
         FROM offers 
         WHERE interest = 1 
-        AND date_added >= date('now', '-2 hours')
+        AND date_added >= date('now', '-4 hours')
     """)
     links = cursor.fetchall()
 

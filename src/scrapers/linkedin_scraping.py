@@ -8,18 +8,20 @@ LAST_WEEK = "r604800"
 
 def run_scraper():
     #liste des mots qu'on ne veut pas dans une offre
-    banned_words = ["confirmé","product owner","stage","internship","alternance","stagiaire","intern","alternant","interim","freelance","docteur","phd","senior","expert","consultant","annotator","annotation", "expérimenté", "data engineer"]
+    banned_words = ["werkstudent","confirmé","product owner","stage","internship","alternance","stagiaire","intern","alternant","interim","freelance","docteur","phd","senior","expert","consultant","annotator","annotation", "expérimenté", "data engineer"]
     #liste des mots qui permettent de considérer une offre
     needed_words = [" ia", "ia ", " ai", "ai ","data", "ml", "cv", "nlp", "llm", "agent"]
 
     date_posted = LAST_DAY
     offers_links = [
-            f"https://www.linkedin.com/jobs/search/?f_TPR={date_posted}&geoId=105015875&keywords=ia&origin=JOB_SEARCH_PAGE_SEARCH_BUTTON&refresh=true",
-            f"https://www.linkedin.com/jobs/search/?f_TPR={date_posted}&geoId=105015875&keywords=data%20scientist&origin=JOB_SEARCH_PAGE_JOB_FILTER&refresh=true",           
-            f"https://www.linkedin.com/jobs/search/?f_TPR={date_posted}&geoId=104738515&keywords=ai&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
-            f"https://www.linkedin.com/jobs/search/?f_TPR={date_posted}&geoId=103819153&keywords=ai&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
-            f"https://www.linkedin.com/jobs/search/?f_TPR={date_posted}&geoId=105117694&keywords=ai&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
-            f"https://www.linkedin.com/jobs/search/?f_TPR={date_posted}&geoId=100456013&keywords=ai&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
+            # f"https://www.linkedin.com/jobs/search/?f_TPR={date_posted}&geoId=105015875&keywords=ia&origin=JOB_SEARCH_PAGE_SEARCH_BUTTON&refresh=true",
+            # f"https://www.linkedin.com/jobs/search/?f_TPR={date_posted}&geoId=105015875&keywords=data%20scientist&origin=JOB_SEARCH_PAGE_JOB_FILTER&refresh=true",           
+            # f"https://www.linkedin.com/jobs/search/?f_TPR={date_posted}&geoId=104738515&keywords=ai&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
+            # f"https://www.linkedin.com/jobs/search/?f_TPR={date_posted}&geoId=103819153&keywords=ai&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
+            # f"https://www.linkedin.com/jobs/search/?f_TPR={date_posted}&geoId=105117694&keywords=ai&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
+            # f"https://www.linkedin.com/jobs/search/?f_TPR={date_posted}&geoId=100456013&keywords=ai&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
+            # f"https://www.linkedin.com/jobs/search/?f_TPR={date_posted}&geoId=101282230&keywords=ai&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
+            # f"https://www.linkedin.com/jobs/search/?f_TPR={date_posted}&geoId=101282230&keywords=data%20scientist&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
             f"https://www.linkedin.com/jobs/search/?f_TPR={date_posted}&geoId=104738515&keywords=data%20scientist&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
             f"https://www.linkedin.com/jobs/search/?f_TPR={date_posted}&geoId=103819153&keywords=data%20scientist&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
             f"https://www.linkedin.com/jobs/search/?f_TPR={date_posted}&geoId=105117694&keywords=data%20scientist&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
@@ -28,6 +30,7 @@ def run_scraper():
 
     conn = get_connection()
     for offers_link in offers_links:
+        time.sleep(10)
         # Le "with" garantit que le navigateur se ferme proprement même s'il y a une erreur (pas de processus fantomes)
         with sync_playwright() as p:
             # headless=False pour voir chromium en live et les actions de playwright

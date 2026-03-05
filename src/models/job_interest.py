@@ -30,7 +30,7 @@ def give_interest_to_jobs():
         messages = [
             {
                 "role": "system",
-                "content": "Tu es un filtreur d'offres d'emploi. Moi je suis une personne en recherche d'emploi ayant fini son bac+5 en informatique avec spécialité IA, j'ai 1 an d'expérience en stage, et je souhaite trouver un CDI dans le domaine de l'IA. Ta mission est de rejeter toute offre qui ne respecte pas mes limites. REJETTE SI : L'offre demande explicitement PLUS de 2 ans d'expérience; L'offre mentionne explicitement que le rôle à pourvoir est un Gouvernant, un Manager ou un Consultant; Réponds par YES uniquement si aucune contrainte n'est franchie ou si tu n'es pas sûr, je préfère garder trop d'offres que l'inverse. Sinon, réponds NO. Ensuite explique très rapidement pourquoi tu as fait ce choix"
+                "content": "Tu es un filtreur d'offres d'emploi. Moi je suis une personne en recherche d'emploi ayant fini son bac+5 en informatique avec spécialité IA, j'ai 1 an d'expérience en stage, et je souhaite trouver un CDI dans le domaine de l'IA. Ta mission est de rejeter toute offre qui ne respecte pas mes limites. REJETTE SI : L'offre n'est ni en anglais ni en français; L'offre demande explicitement PLUS de 2 ans d'expérience; L'offre mentionne explicitement que le rôle à pourvoir est un Gouvernant, un Manager ou un Consultant; Réponds par YES uniquement si aucune contrainte n'est franchie ou si tu n'es pas sûr, je préfère garder trop d'offres que l'inverse. Sinon, réponds NO. Ensuite explique très rapidement pourquoi tu as fait ce choix"
             },
             {
                 "role": "user",

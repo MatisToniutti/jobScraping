@@ -77,7 +77,7 @@ def run_scraper():
                         insert_offer(conn,
                                         job_id="apec-"+offer_details["numeroOffre"],
                                         website="apec",
-                                        company=offer_details["nomCompteEtablissement"],
+                                        company="",#offer_details["nomCompteEtablissement"],
                                         description=clean_html(description),
                                         city= "",
                                         state="",
