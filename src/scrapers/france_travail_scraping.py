@@ -74,7 +74,7 @@ def run_scraper():
                     #si entreprise n'existe pas on a un dictionnaire vide et non une erreur
                     entreprise = offer.get("entreprise", {})
                     nom_entreprise = entreprise.get("nom", "")
-                    insert_offer(conn,
+                    is_inserted = insert_offer(conn,
                                 job_id="ft-"+offer["id"],
                                 website="france_travail",
                                 company=nom_entreprise,
@@ -85,7 +85,8 @@ def run_scraper():
                                 name=offer["intitule"],
                                 link="https://candidat.francetravail.fr/offres/recherche/detail/"+offer["id"])
                     
-                    add_to_vector_db(collection=collection,offer_data={
+                    if is_inserted:
+                        add_to_vector_db(collection=collection,offer_data={
                                 "job_id":"ft-"+offer["id"],
                                 "website":"france_travail",
                                 "company":nom_entreprise,

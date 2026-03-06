@@ -52,6 +52,7 @@ def insert_offer(conn, job_id, website="", description="", name="", company="",c
         conn.commit()
     except sqlite3.Error as e:
         print(f"Erreur SQLite : {e}")
+    return cursor.rowcount > 0
 
 def get_unprocessed_offers(conn):
     """Retourne les offres qu'on a pas encore définies comme intéressantes ou non"""

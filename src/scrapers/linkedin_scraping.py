@@ -16,17 +16,17 @@ def run_scraper():
 
     date_posted = LAST_DAY
     offers_links = [
-            f"https://www.linkedin.com/jobs/search/?f_TPR={date_posted}&geoId=105015875&keywords=ia&origin=JOB_SEARCH_PAGE_SEARCH_BUTTON&refresh=true",
-            f"https://www.linkedin.com/jobs/search/?f_TPR={date_posted}&geoId=105015875&keywords=data%20scientist&origin=JOB_SEARCH_PAGE_JOB_FILTER&refresh=true",           
-            f"https://www.linkedin.com/jobs/search/?f_TPR={date_posted}&geoId=104738515&keywords=ai&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
-            f"https://www.linkedin.com/jobs/search/?f_TPR={date_posted}&geoId=103819153&keywords=ai&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
-            f"https://www.linkedin.com/jobs/search/?f_TPR={date_posted}&geoId=105117694&keywords=ai&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
-            f"https://www.linkedin.com/jobs/search/?f_TPR={date_posted}&geoId=100456013&keywords=ai&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
-            f"https://www.linkedin.com/jobs/search/?f_TPR={date_posted}&geoId=101282230&keywords=ai&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
-            f"https://www.linkedin.com/jobs/search/?f_TPR={date_posted}&geoId=101282230&keywords=data%20scientist&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
-            f"https://www.linkedin.com/jobs/search/?f_TPR={date_posted}&geoId=104738515&keywords=data%20scientist&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
-            f"https://www.linkedin.com/jobs/search/?f_TPR={date_posted}&geoId=103819153&keywords=data%20scientist&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
-            f"https://www.linkedin.com/jobs/search/?f_TPR={date_posted}&geoId=105117694&keywords=data%20scientist&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
+            # f"https://www.linkedin.com/jobs/search/?f_TPR={date_posted}&geoId=105015875&keywords=ia&origin=JOB_SEARCH_PAGE_SEARCH_BUTTON&refresh=true",
+            # f"https://www.linkedin.com/jobs/search/?f_TPR={date_posted}&geoId=105015875&keywords=data%20scientist&origin=JOB_SEARCH_PAGE_JOB_FILTER&refresh=true",           
+            # f"https://www.linkedin.com/jobs/search/?f_TPR={date_posted}&geoId=104738515&keywords=ai&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
+            # f"https://www.linkedin.com/jobs/search/?f_TPR={date_posted}&geoId=103819153&keywords=ai&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
+            # f"https://www.linkedin.com/jobs/search/?f_TPR={date_posted}&geoId=105117694&keywords=ai&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
+            # f"https://www.linkedin.com/jobs/search/?f_TPR={date_posted}&geoId=100456013&keywords=ai&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
+            # f"https://www.linkedin.com/jobs/search/?f_TPR={date_posted}&geoId=101282230&keywords=ai&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
+            # f"https://www.linkedin.com/jobs/search/?f_TPR={date_posted}&geoId=101282230&keywords=data%20scientist&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
+            # f"https://www.linkedin.com/jobs/search/?f_TPR={date_posted}&geoId=104738515&keywords=data%20scientist&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
+            # f"https://www.linkedin.com/jobs/search/?f_TPR={date_posted}&geoId=103819153&keywords=data%20scientist&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
+            # f"https://www.linkedin.com/jobs/search/?f_TPR={date_posted}&geoId=105117694&keywords=data%20scientist&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
             f"https://www.linkedin.com/jobs/search/?f_TPR={date_posted}&geoId=100456013&keywords=data%20scientist&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true",
         ]
 
@@ -100,7 +100,7 @@ def run_scraper():
                                 description = desc_locator.inner_text(timeout=2000).strip()
                             else:
                                 continue
-                            insert_offer(conn,
+                            is_inserted = insert_offer(conn,
                                         job_id="linkedin-"+job_id,
                                         website="linkedin",
                                         company=company_name,
@@ -111,19 +111,18 @@ def run_scraper():
                                         name=title,
                                         link=link)
                             
-                            add_to_vector_db(collection=collection,offer_data={
-                                "job_id":"linkedin-"+job_id,
-                                "website":"linkedin",
-                                "company":company_name,
-                                "description":description,
-                                "city":location[0] if len(location) >2 else "",
-                                "state":location[1] if len(location) >2 else "",
-                                "country":location[2] if len(location) >2 else "",
-                                "name":title,
-                                "link":link
-                            })
-                        # else:
-                        #     print(f"Refusée : ID: {job_id} | Titre: {title}")
+                            if is_inserted:
+                                add_to_vector_db(collection=collection,offer_data={
+                                    "job_id":"linkedin-"+job_id,
+                                    "website":"linkedin",
+                                    "company":company_name,
+                                    "description":description,
+                                    "city":location[0] if len(location) >2 else "",
+                                    "state":location[1] if len(location) >2 else "",
+                                    "country":location[2] if len(location) >2 else "",
+                                    "name":title,
+                                    "link":link
+                                })
 
                     except TimeoutError:
                         print(f"Erreur : L'offre a mis trop de temps à charger. Passage à la suivante.")

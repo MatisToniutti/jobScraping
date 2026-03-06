@@ -70,7 +70,8 @@ def run_scraper():
                     api,
                     headers=headers_details,
                 )
-                insert_offer(conn,
+                
+                is_inserted = insert_offer(conn,
                             job_id="wttj-"+offer["slug"],
                             website="wttj",
                             company=offer["organization"]["name"],
@@ -80,7 +81,9 @@ def run_scraper():
                             country=offer["offices"][0]["country"],
                             name=offer["name"],
                             link=link)
-                add_to_vector_db(collection=collection,offer_data={
+                
+                if is_inserted:
+                    add_to_vector_db(collection=collection,offer_data={
                                 "job_id":"wttj-"+offer["slug"],
                                 "website":"wttj",
                                 "company":offer["organization"]["name"],

@@ -7,14 +7,14 @@ from utils.utils import export_links
 from utils.vector_db import get_vector_collection, clear_vector_collection
 
 def main():
-    collection = get_vector_collection()
-    clear_vector_collection(collection)
-    apec.run_scraper()
-    print("Apec scraping effectué")
-    ft.run_scraper()
-    print("france travail scraping effectué")
-    wttj.run_scraper()
-    print("welcome to the jungle scraping effectué")
+    # collection = get_vector_collection()
+    # clear_vector_collection(collection)
+    # apec.run_scraper()
+    # print("Apec scraping effectué")
+    # ft.run_scraper()
+    # print("france travail scraping effectué")
+    # wttj.run_scraper()
+    # print("welcome to the jungle scraping effectué")
     linkedin.run_scraper()
     print("linkedin scraping effectué")
     

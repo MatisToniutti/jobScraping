@@ -77,7 +77,7 @@ def run_scraper():
                         description = offer_details["texteHtml"]+offer_details["texteHtmlProfil"]+offer_details["texteHtmlEntreprise"]
                         description = clean_html(description)
                         link = "https://www.apec.fr/candidat/recherche-emploi.html/emploi/detail-offre/" + offer_details["numeroOffre"]
-                        insert_offer(conn,
+                        is_inserted = insert_offer(conn,
                                         job_id="apec-"+offer_details["numeroOffre"],
                                         website="apec",
                                         company="",#offer_details["nomCompteEtablissement"],
@@ -87,18 +87,18 @@ def run_scraper():
                                         country="",
                                         name=offer_details["intitule"],
                                         link=link)
-                        
-                        add_to_vector_db(collection=collection,offer_data={
-                                "job_id":"apec-"+offer_details["numeroOffre"],
-                                "website":"apec",
-                                "company":"",#offer_details["nomCompteEtablissement"],
-                                "description":clean_html(description),
-                                "city": "",
-                                "state":"",
-                                "country":"",
-                                "name":offer_details["intitule"],
-                                "link":link
-                            })
+                        if is_inserted:
+                            add_to_vector_db(collection=collection,offer_data={
+                                    "job_id":"apec-"+offer_details["numeroOffre"],
+                                    "website":"apec",
+                                    "company":"",#offer_details["nomCompteEtablissement"],
+                                    "description":clean_html(description),
+                                    "city": "",
+                                    "state":"",
+                                    "country":"",
+                                    "name":offer_details["intitule"],
+                                    "link":link
+                                })
             else:
                 print(f"Erreur : {response.status_code}")
 
