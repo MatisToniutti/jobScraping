@@ -1,5 +1,6 @@
 import sqlite3
 import os
+from datetime import datetime, timedelta
 
 def get_connection(db_name="jobs_scraping.db"):
     """Crée ou récupère la connexion à la base de données."""
@@ -77,7 +78,63 @@ def set_interest_offer(conn, id, value):
                    ''', (value, id))
     conn.commit()
 
+def create_test_snapshot(hours=5):
+    # Chemins des bases de données
+    root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    source_path = os.path.join(root, "src","database", "jobs_scraping.db")
+    test_path = os.path.join(root, "src", "database","test","jobs_scraping_test.db")
+
+    if not os.path.exists(source_path):
+        print(f"❌ Erreur : La base source n'existe pas ({source_path})")
+        return
+
+    # 1. Calculer la date limite (Heure actuelle - X heures)
+    # SQLite utilise le format 'YYYY-MM-DD HH:MM:SS'
+    limit_date = (datetime.now() - timedelta(hours=hours)).strftime('%Y-%m-%d %H:%M:%S')
+    print(f"🔍 Recherche des offres ajoutées depuis : {limit_date}")
+
+    # 2. Connexion aux deux bases
+    # Si offers_test.db n'existe pas, SQLite va le créer
+    src_conn = sqlite3.connect(source_path)
+    test_conn = sqlite3.connect(test_path)
+    
+    src_cursor = src_conn.cursor()
+    test_cursor = test_conn.cursor()
+
+    try:
+        # 3. Créer la structure de la table dans la base de test si elle n'existe pas
+        # On récupère le schéma de la table 'offers' de la source
+        schema = src_cursor.execute("SELECT sql FROM sqlite_master WHERE type='table' AND name='offers'").fetchone()[0]
+        test_cursor.execute(schema)
+
+        # 5. Récupérer les offres récentes depuis la source
+        src_cursor.execute("SELECT * FROM offers WHERE date_added >= ?", (limit_date,))
+        recent_offers = src_cursor.fetchall()
+
+        if not recent_offers:
+            print("⚠️ Aucune offre trouvée dans les dernières 5 heures.")
+            return
+
+        # 6. Insérer dans la base de test (avec IGNORE pour éviter les doublons si on relance)
+        # On récupère le nombre de colonnes pour préparer les '?'
+        column_count = len(recent_offers[0])
+        placeholders = ", ".join(["?"] * column_count)
+        
+        # Note: On insère dans toutes les colonnes d'origine
+        query = f"INSERT OR IGNORE INTO offers VALUES ({placeholders})"
+        
+        test_cursor.executemany(query, recent_offers)
+        test_conn.commit()
+
+        print(f"✅ Succès : {len(recent_offers)} offres copiées dans '{test_path}'.")
+        print(f"🚀 Tu peux maintenant uploader 'offers_test.db' ou l'utiliser pour ton labeling.")
+
+    except Exception as e:
+        print(f"❌ Une erreur est survenue : {e}")
+    
+    finally:
+        src_conn.close()
+        test_conn.close()
+    
 if __name__ == "__main__":
-    conn = get_connection()
-    create_offers_table(conn)
-    conn.close()
+    create_test_snapshot(hours=5)
